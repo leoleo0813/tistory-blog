@@ -99,8 +99,8 @@
     function saBindEvents() {
       var nb = el('sa-nextBtn');
       var pb = el('sa-prevBtn');
-      if (nb) { nb.onclick = null; nb.addEventListener('click', window.saNextQ); }
-      if (pb) { pb.onclick = null; pb.addEventListener('click', window.saPrevQ); }
+      if (nb) { nb.onclick = window.boNextQ; nb.addEventListener('click', window.saNextQ); }
+      if (pb) { pb.onclick = window.boPrevQ;pb.addEventListener('click', window.saPrevQ); }
       var retry = document.querySelector('.sa-retry-btn');
       if (retry) retry.addEventListener('click', window.saResetQuiz);
     }
@@ -258,8 +258,8 @@
     function boBindEvents() {
       var nb = el('bo-nextBtn');
       var pb = el('bo-prevBtn');
-      if (nb) { nb.onclick = null; nb.addEventListener('click', window.boNextQ); }
-      if (pb) { pb.onclick = null; pb.addEventListener('click', window.boPrevQ); }
+      if (nb) { nb.onclick = window.boNextQ; }
+      if (pb) { pb.onclick = window.boPrevQ;}
       var retry = document.querySelector('.bo-retry-btn');
       if (retry) retry.addEventListener('click', window.boResetQuiz);
       for (var i = 0; i < 4; i++) {
