@@ -93,6 +93,16 @@
       if (el('sa-progText')) el('sa-progText').textContent = saCur + ' / ' + questions.length;
       if (el('sa-prevBtn'))  el('sa-prevBtn').disabled = saCur === 0;
       if (el('sa-nextBtn'))  el('sa-nextBtn').textContent = (saCur === questions.length - 1) ? '결과 보기 →' : '다음 →';
+      saBindEvents();
+    }
+
+    function saBindEvents() {
+      var nb = el('sa-nextBtn');
+      var pb = el('sa-prevBtn');
+      if (nb) { nb.onclick = null; nb.addEventListener('click', window.saNextQ); }
+      if (pb) { pb.onclick = null; pb.addEventListener('click', window.saPrevQ); }
+      var retry = document.querySelector('.sa-retry-btn');
+      if (retry) retry.addEventListener('click', window.saResetQuiz);
     }
 
     window.saNextQ = function () {
@@ -156,6 +166,7 @@
     };
 
     saRender();
+    saBindEvents();
   }
 
   /* ================================================================
@@ -241,6 +252,28 @@
       if (el('bo-progText')) el('bo-progText').textContent = boCur + ' / ' + questions.length;
       if (el('bo-prevBtn'))  el('bo-prevBtn').disabled = boCur === 0;
       if (el('bo-nextBtn'))  el('bo-nextBtn').textContent = (boCur === questions.length - 1) ? '결과 확인 →' : '다음 →';
+      boBindEvents();
+    }
+
+    function boBindEvents() {
+      var nb = el('bo-nextBtn');
+      var pb = el('bo-prevBtn');
+      if (nb) { nb.onclick = null; nb.addEventListener('click', window.boNextQ); }
+      if (pb) { pb.onclick = null; pb.addEventListener('click', window.boPrevQ); }
+      var retry = document.querySelector('.bo-retry-btn');
+      if (retry) retry.addEventListener('click', window.boResetQuiz);
+      for (var i = 0; i < 4; i++) {
+        (function(idx) {
+          var ph = el('bo-ph' + idx);
+          if (ph) { ph.onclick = null; ph.addEventListener('click', function(){ window.boShowPhase(idx); }); }
+        })(i);
+      }
+      for (var i = 0; i < 4; i++) {
+        (function(idx) {
+          var st = el('sa-st' + idx);
+          if (st) { st.onclick = null; st.addEventListener('click', function(){ window.saShowStage(idx); }); }
+        })(i);
+      }
     }
 
     window.boNextQ = function () {
@@ -304,6 +337,7 @@
     };
 
     boRender();
+    boBindEvents();
   }
 
   /* ================================================================
