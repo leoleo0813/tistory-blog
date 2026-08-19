@@ -341,12 +341,227 @@
   }
 
   /* ================================================================
+     [3] 자가진단 퀴즈 공통 엔진
+     새 자가진단 글 추가 시: 아래 initSelfCheck(cfg)에 넘길 설정 객체만
+     만들고, initXxx() 래퍼 함수를 하나 추가한 뒤 ready()에 등록하면 됨.
+     (진행바/이전·다음/결과 화면 로직은 여기서 공통 처리)
+  ================================================================ */
+  function initSelfCheck(cfg) {
+    var p = cfg.prefix;
+    if (!el(p + '-quizWrap')) return;
+
+    var questions = cfg.questions;
+    var opts = cfg.opts;
+    var results = cfg.results;
+    var answers = new Array(questions.length).fill(null);
+    var cur = 0;
+
+    function render() {
+      var q = questions[cur];
+      if (el(p + '-qNum'))  el(p + '-qNum').textContent  = '문항 ' + (cur + 1) + ' / ' + questions.length;
+      if (el(p + '-qText')) el(p + '-qText').textContent = q.text;
+      var area = el(p + '-optArea');
+      if (area) {
+        area.innerHTML = '';
+        for (var i = 0; i < opts.length; i++) {
+          (function (idx) {
+            var btn = document.createElement('button');
+            btn.className = p + '-opt-btn' + (answers[cur] === idx ? ' selected' : '');
+            btn.innerHTML = '<div class="' + p + '-opt-dot">' + (idx + 1) + '</div><span>' + opts[idx] + '</span>';
+            btn.addEventListener('click', function () { answers[cur] = idx; render(); });
+            area.appendChild(btn);
+          })(i);
+        }
+      }
+      var pct = Math.round((cur / questions.length) * 100);
+      if (el(p + '-progFill')) el(p + '-progFill').style.width = pct + '%';
+      if (el(p + '-progText')) el(p + '-progText').textContent = cur + ' / ' + questions.length;
+      if (el(p + '-prevBtn'))  el(p + '-prevBtn').disabled = cur === 0;
+      if (el(p + '-nextBtn'))  el(p + '-nextBtn').textContent = (cur === questions.length - 1) ? '결과 보기 →' : '다음 →';
+    }
+
+    function next() {
+      if (answers[cur] === null) {
+        var h = el(p + '-hint');
+        if (h) {
+          h.textContent = '⚠️ 문항을 선택해주세요'; h.style.color = '#E24B4A';
+          setTimeout(function () { h.textContent = cfg.hintText || '선택 후 다음으로 이동하세요'; h.style.color = ''; }, 1800);
+        }
+        return;
+      }
+      if (cur < questions.length - 1) { cur++; render(); } else { showResult(); }
+    }
+    function prev() { if (cur > 0) { cur--; render(); } }
+
+    function showResult() {
+      var total = 0;
+      for (var i = 0; i < answers.length; i++) total += (answers[i] || 0);
+      var r = null;
+      for (var j = 0; j < results.length; j++) { if (total >= results[j].min && total <= results[j].max) { r = results[j]; break; } }
+      if (el(p + '-quizWrap')) el(p + '-quizWrap').style.display = 'none';
+      var rw = el(p + '-resultWrap');
+      if (!rw || !r) return;
+      rw.style.display = 'block';
+      if (el(p + '-resEmoji')) el(p + '-resEmoji').textContent = r.emoji;
+      if (el(p + '-resLevel')) { el(p + '-resLevel').textContent = r.level; el(p + '-resLevel').style.color = r.color; }
+      if (el(p + '-resTitle')) el(p + '-resTitle').textContent = r.title;
+      if (el(p + '-resScore')) { el(p + '-resScore').textContent = total; el(p + '-resScore').style.color = r.color; }
+      var bar = el(p + '-resBar');
+      var maxScore = (opts.length - 1) * questions.length;
+      if (bar) { bar.style.background = r.color; setTimeout(function () { bar.style.width = Math.round((total / maxScore) * 100) + '%'; }, 100); }
+      if (el(p + '-resDesc')) el(p + '-resDesc').textContent = r.desc;
+      if (el(p + '-resTips')) {
+        var h = '<div class="' + p + '-tips-title">맞춤 실천 팁</div>';
+        for (var k = 0; k < r.tips.length; k++) h += '<div class="' + p + '-rtip"><div class="' + p + '-rtip-dot" style="background:' + r.color + '"></div><span>' + r.tips[k] + '</span></div>';
+        el(p + '-resTips').innerHTML = h;
+      }
+      if (el(p + '-progFill')) el(p + '-progFill').style.width = '100%';
+      if (el(p + '-progText')) el(p + '-progText').textContent = questions.length + ' / ' + questions.length;
+      rw.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function reset() {
+      answers = new Array(questions.length).fill(null); cur = 0;
+      if (el(p + '-quizWrap'))   el(p + '-quizWrap').style.display   = 'block';
+      if (el(p + '-resultWrap')) el(p + '-resultWrap').style.display = 'none';
+      render();
+      if (el(p + '-quizWrap')) el(p + '-quizWrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    var nb = el(p + '-nextBtn'); if (nb) nb.addEventListener('click', next);
+    var pb = el(p + '-prevBtn'); if (pb) pb.addEventListener('click', prev);
+    var retry = document.querySelector('.' + p + '-retry-btn'); if (retry) retry.addEventListener('click', reset);
+
+    render();
+  }
+
+  /* ---- [3-1] 수면의 질 자가진단 (sq-) ---- */
+  function initSleep() {
+    initSelfCheck({
+      prefix: 'sq',
+      questions: [
+        { text: "잠자리에 누워도 20분 이상 잠들지 못할 때가 많다." },
+        { text: "자다가 자주 깨고 다시 잠들기 어렵다." },
+        { text: "아침에 일어나도 개운하지 않고 피곤함이 남아있다." },
+        { text: "자기 전 스마트폰이나 TV를 오래 본다." },
+        { text: "주말과 평일의 기상 시간이 2시간 이상 차이난다." },
+        { text: "낮 동안 졸음이 몰려와 집중하기 어렵다." },
+        { text: "카페인이 든 음료를 오후 늦게도 마신다." },
+        { text: "잠들기 전 머릿속으로 걱정거리가 계속 떠오른다." },
+        { text: "코를 골거나 자다가 숨이 막히는 느낌을 받은 적이 있다(주변에서 들은 적 포함)." },
+        { text: "수면 시간이 하루 6시간 미만인 날이 많다." }
+      ],
+      opts: ["전혀 그렇지 않다", "그렇지 않다", "보통이다", "그렇다", "매우 그렇다"],
+      hintText: '솔직하게 선택할수록 정확해요',
+      results: [
+        { min: 0,  max: 10, emoji: "😴", level: "양호",        color: "#1D9E75",
+          title: "수면의 질이 양호한 편이에요",
+          desc: "전반적으로 안정적인 수면 패턴을 유지하고 있습니다. 지금의 생활 리듬을 꾸준히 지켜가는 것이 중요합니다.",
+          tips: ["일정한 기상 시간을 유지하세요", "주말에도 기상 시간 차이를 1시간 이내로 유지해보세요"] },
+        { min: 11, max: 20, emoji: "🌙", level: "경미한 저하",  color: "#EF9F27",
+          title: "수면의 질이 조금씩 떨어지고 있어요",
+          desc: "아직 심각하지 않지만 몇 가지 습관이 수면의 질을 갉아먹고 있을 수 있습니다.",
+          tips: ["취침 1시간 전 화면 노출을 줄여보세요", "오후 2시 이후 카페인 섭취를 피해보세요", "잠들기 전 걱정거리를 메모로 적어두고 내려놓아보세요"] },
+        { min: 21, max: 30, emoji: "🥱", level: "저하 위험군",  color: "#E85D24",
+          title: "수면의 질 저하가 뚜렷하게 나타나요",
+          desc: "낮 시간 활동에도 영향을 줄 수 있는 수준입니다. 수면 습관을 적극적으로 점검할 시점입니다.",
+          tips: ["기상·취침 시간을 매일 같게 고정해보세요", "낮잠은 20분 이내로 제한하세요", "침실은 수면 전용 공간으로 만들어보세요(스마트폰 반입 금지)"] },
+        { min: 31, max: 40, emoji: "🚨", level: "심각 단계",    color: "#E24B4A",
+          title: "수면 문제가 심각한 수준이에요",
+          desc: "코골이·무호흡 의심 증상까지 있다면 단순 습관 문제가 아닐 수 있습니다. 이 결과는 자가진단 참고용이며, 정확한 진단은 전문의 상담이 필요합니다.",
+          tips: ["수면 클리닉이나 이비인후과 상담을 고려해보세요", "수면 일기를 2주간 기록해 패턴을 확인해보세요", "카페인·음주를 크게 줄여보세요"] }
+      ]
+    });
+  }
+
+  /* ---- [3-2] 스트레스 지수 자가진단 (si-) ---- */
+  function initStress() {
+    initSelfCheck({
+      prefix: 'si',
+      questions: [
+        { text: "사소한 일에도 쉽게 짜증이 나거나 예민해진다." },
+        { text: "두통, 소화불량, 근육 긴장 등 신체 증상이 잦아졌다." },
+        { text: "해야 할 일이 많아 늘 시간에 쫓기는 기분이다." },
+        { text: "잠들기 전에도 걱정과 생각이 멈추지 않는다." },
+        { text: "사람 만나는 것이 예전보다 피곤하고 부담스럽다." },
+        { text: "식욕이 예전보다 급격히 늘거나 줄었다." },
+        { text: "집중력이 떨어져 실수가 잦아졌다." },
+        { text: "특별한 이유 없이 불안하거나 마음이 무겁다." },
+        { text: "스트레스를 풀기 위해 음주, 흡연, 폭식에 의존하는 편이다." },
+        { text: "하루를 마무리할 때 성취감보다 지친 느낌이 크다." }
+      ],
+      opts: ["전혀 아니다", "거의 아니다", "가끔 그렇다", "자주 그렇다", "항상 그렇다"],
+      hintText: '솔직하게 선택할수록 정확해요',
+      results: [
+        { min: 0,  max: 10, emoji: "🟢", level: "안정",        color: "#1D9E75",
+          title: "스트레스를 잘 관리하고 있어요",
+          desc: "현재 스트레스 수준이 안정적인 범위입니다. 지금의 대처 방식을 유지해보세요.",
+          tips: ["규칙적인 운동과 수면을 유지하세요", "가끔은 의도적으로 아무것도 안 하는 시간을 가져보세요"] },
+        { min: 11, max: 20, emoji: "🟡", level: "경계",        color: "#BA7517",
+          title: "스트레스가 조금씩 쌓이고 있어요",
+          desc: "일상적인 스트레스 반응이 나타나기 시작하는 단계입니다. 방치하면 누적될 수 있습니다.",
+          tips: ["하루 10분 산책이나 스트레칭을 시도해보세요", "할 일을 우선순위대로 정리해 부담을 줄여보세요", "믿을 만한 사람에게 고민을 털어놓아보세요"] },
+        { min: 21, max: 30, emoji: "🟠", level: "위험군",      color: "#E85D24",
+          title: "스트레스가 신체·감정에 영향을 주고 있어요",
+          desc: "수면, 식욕, 대인관계 등 여러 영역에서 스트레스의 영향이 나타나는 단계입니다.",
+          tips: ["업무·일정을 줄일 수 있는 부분을 찾아보세요", "호흡법이나 명상 등 이완 기법을 연습해보세요", "증상이 2주 이상 지속되면 상담을 고려해보세요"] },
+        { min: 31, max: 40, emoji: "🔴", level: "심각 단계",    color: "#E24B4A",
+          title: "적극적인 관리가 필요한 수준이에요",
+          desc: "만성 스트레스는 신체 질환으로 이어질 수 있습니다. 이 결과는 참고용이며, 정확한 평가는 전문가 상담이 필요합니다.",
+          tips: ["정신건강의학과나 상담센터 방문을 고려해보세요", "정신건강 위기상담전화 1577-0199를 이용할 수 있습니다", "당장 줄일 수 있는 스트레스 요인부터 하나씩 정리해보세요"] }
+      ]
+    });
+  }
+
+  /* ---- [3-3] 장 건강 자가진단 (gh-) ---- */
+  function initGut() {
+    initSelfCheck({
+      prefix: 'gh',
+      questions: [
+        { text: "배에 가스가 자주 차고 더부룩함을 느낀다." },
+        { text: "변비나 설사가 반복되는 편이다." },
+        { text: "식사 후 속이 더부룩하거나 소화가 잘 안 된다." },
+        { text: "인스턴트, 가공식품, 배달음식을 자주 먹는다." },
+        { text: "채소·과일 등 식이섬유가 풍부한 음식을 잘 챙겨 먹지 못한다." },
+        { text: "스트레스를 받으면 배가 아프거나 화장실을 자주 간다." },
+        { text: "잦은 트림이나 속쓰림을 느낀다." },
+        { text: "항생제나 소화제를 자주 복용하는 편이다." },
+        { text: "피부 트러블이나 만성 피로가 소화 문제와 함께 나타난다." },
+        { text: "물을 하루 1리터 미만으로 마신다." }
+      ],
+      opts: ["전혀 그렇지 않다", "그렇지 않다", "보통이다", "그렇다", "매우 그렇다"],
+      hintText: '솔직하게 선택할수록 정확해요',
+      results: [
+        { min: 0,  max: 10, emoji: "🌿", level: "양호",        color: "#1D9E75",
+          title: "장 건강이 양호한 편이에요",
+          desc: "소화 기능과 식습관이 비교적 균형 잡혀 있습니다. 지금의 식습관을 유지해보세요.",
+          tips: ["식이섬유·발효식품 섭취를 꾸준히 유지하세요", "규칙적인 식사 시간을 지켜보세요"] },
+        { min: 11, max: 20, emoji: "🍽️", level: "경미한 저하",  color: "#EF9F27",
+          title: "장 건강 관리가 조금 필요해요",
+          desc: "가벼운 소화 불편감이 반복되고 있을 수 있습니다. 식습관을 점검해볼 시점입니다.",
+          tips: ["가공식품 섭취를 줄이고 채소를 늘려보세요", "물을 하루 1.5리터 이상 마셔보세요", "식후 가벼운 산책을 시도해보세요"] },
+        { min: 21, max: 30, emoji: "😣", level: "저하 위험군",  color: "#E85D24",
+          title: "장 기능 저하가 뚜렷하게 나타나요",
+          desc: "소화 불편감이 반복되고 스트레스와도 연관되어 있을 가능성이 있습니다.",
+          tips: ["식사일기를 써서 불편한 음식을 파악해보세요", "유산균, 발효식품을 규칙적으로 섭취해보세요", "카페인·자극적인 음식을 줄여보세요"] },
+        { min: 31, max: 40, emoji: "🚨", level: "심각 단계",    color: "#E24B4A",
+          title: "장 건강에 적극적인 관리가 필요해요",
+          desc: "증상이 지속되면 단순 소화불량이 아닌 다른 원인일 수 있습니다. 이 결과는 참고용이며, 정확한 진단은 전문의 상담이 필요합니다.",
+          tips: ["증상이 2주 이상 지속되면 소화기내과 진료를 받아보세요", "혈변, 급격한 체중 변화가 있다면 즉시 병원을 방문하세요", "식단과 스트레스 관리를 함께 병행해보세요"] }
+      ]
+    });
+  }
+
+  /* ================================================================
      실행 — 페이지에 해당 요소가 있을 때만 각각 초기화
      새 주제 추가 시: initXxx() 함수 작성 후 아래에 한 줄 추가
   ================================================================ */
   ready(function () {
     initSmartphone();  /* 스마트폰 중독 글 */
     initBurnout();     /* 번아웃 글 */
+    initSleep();       /* 수면의 질 자가진단 글 */
+    initStress();      /* 스트레스 지수 자가진단 글 */
+    initGut();         /* 장 건강 자가진단 글 */
     /* initNewTopic(); ← 새 글 추가 시 여기에 한 줄 */
   });
 

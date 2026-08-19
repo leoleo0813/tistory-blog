@@ -1,0 +1,77 @@
+<!-- ================================================================
+     티스토리 포스트 본문 — 이 블록 전체를 티스토리 글쓰기 화면의
+     HTML 편집 모드에 붙여넣으세요. blog.js는 GitHub(jsDelivr)에서
+     자동으로 불러옵니다.
+================================================================ -->
+<div style="max-width:720px;margin:0 auto;font-size:16px;line-height:1.8;color:#2C2C2A;">
+
+  <h2>수면의 질 자가진단 — 나는 잘 자고 있을까?</h2>
+  <p>2026년 웰니스 트렌드에서 &#39;회복&#39;이 핵심 키워드로 떠오르면서, 수면의 질에 대한 관심이 커지고 있습니다. 잠은 충분히 자는데 왜 피곤할까? 아래 10개 문항으로 나의 수면 습관을 점검해보세요.</p>
+
+  <style>
+    #sq-quizWrap, #sq-resultWrap { font-family: inherit; margin: 24px 0; }
+    .sq-card { background:#FAFAF8; border:1px solid #E7E5DE; border-radius:16px; padding:28px 24px; }
+    .sq-prog-wrap { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+    .sq-prog-track { flex:1; height:8px; background:#E7E5DE; border-radius:999px; overflow:hidden; }
+    #sq-progFill { height:100%; width:0%; background:#2E86AB; transition:width .3s ease; }
+    #sq-progText { font-size:13px; color:#8A8578; white-space:nowrap; }
+    #sq-qNum { font-size:13px; color:#2E86AB; font-weight:700; margin-bottom:6px; }
+    #sq-qText { font-size:18px; font-weight:700; margin:0 0 20px; }
+    #sq-optArea { display:flex; flex-direction:column; gap:10px; }
+    .sq-opt-btn { display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:14px 16px; border:1px solid #E7E5DE; background:#fff; border-radius:12px; cursor:pointer; font-size:15px; color:#2C2C2A; }
+    .sq-opt-btn.selected { border-color:#2E86AB; background:color-mix(in srgb, #2E86AB 10%, white); font-weight:700; }
+    .sq-opt-dot { width:26px; height:26px; flex:none; border-radius:50%; background:#E7E5DE; color:#5C5850; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
+    .sq-opt-btn.selected .sq-opt-dot { background:#2E86AB; color:#fff; }
+    .sq-nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:22px; gap:10px; }
+    #sq-prevBtn, #sq-nextBtn { padding:10px 20px; border-radius:10px; border:1px solid #E7E5DE; background:#fff; cursor:pointer; font-size:14px; font-weight:700; }
+    #sq-nextBtn { background:#2E86AB; color:#fff; border-color:#2E86AB; margin-left:auto; }
+    #sq-prevBtn:disabled { opacity:.4; cursor:not-allowed; }
+    #sq-hint { font-size:13px; color:#8A8578; margin-top:10px; text-align:center; }
+    #sq-resultWrap { text-align:center; }
+    #sq-resEmoji { font-size:52px; }
+    #sq-resLevel { font-size:15px; font-weight:700; margin-top:6px; }
+    #sq-resTitle { font-size:20px; font-weight:800; margin:8px 0 4px; }
+    #sq-resScore { font-size:36px; font-weight:800; margin:6px 0; }
+    .sq-res-bar-track { height:10px; background:#E7E5DE; border-radius:999px; overflow:hidden; margin:14px 0 18px; }
+    #sq-resBar { height:100%; width:0%; transition:width .8s ease; }
+    #sq-resDesc { font-size:15px; color:#4A463E; text-align:left; background:#FAFAF8; border-radius:12px; padding:16px 18px; margin-bottom:16px; }
+    .sq-tips-title { font-weight:700; margin-bottom:10px; text-align:left; }
+    #sq-resTips { text-align:left; display:flex; flex-direction:column; gap:8px; }
+    .sq-rtip { display:flex; align-items:flex-start; gap:8px; font-size:14.5px; }
+    .sq-rtip-dot { width:6px; height:6px; border-radius:50%; margin-top:8px; flex:none; }
+    .sq-retry-btn { margin-top:20px; padding:10px 22px; border-radius:10px; border:1px solid #2E86AB; background:#fff; color:#2E86AB; font-weight:700; cursor:pointer; }
+  </style>
+
+  <div id="sq-quizWrap" class="sq-card">
+    <div class="sq-prog-wrap">
+      <div class="sq-prog-track"><div id="sq-progFill"></div></div>
+      <span id="sq-progText">0 / 10</span>
+    </div>
+    <div id="sq-qNum">문항 1 / 10</div>
+    <div id="sq-qText"></div>
+    <div id="sq-optArea"></div>
+    <div class="sq-nav-row">
+      <button id="sq-prevBtn">← 이전</button>
+      <button id="sq-nextBtn">다음 →</button>
+    </div>
+    <div id="sq-hint">솔직하게 선택할수록 정확해요</div>
+  </div>
+
+  <div id="sq-resultWrap" class="sq-card" style="display:none;">
+    <div id="sq-resEmoji"></div>
+    <div id="sq-resLevel"></div>
+    <div id="sq-resTitle"></div>
+    <div id="sq-resScore"></div>
+    <div class="sq-res-bar-track"><div id="sq-resBar"></div></div>
+    <div id="sq-resDesc"></div>
+    <div id="sq-resTips"></div>
+    <button class="sq-retry-btn">다시 진단하기</button>
+  </div>
+
+  <p style="font-size:13px;color:#8A8578;margin-top:20px;">
+    ※ 본 자가진단은 참고용 콘텐츠이며 의학적 진단을 대체하지 않습니다. 증상이 지속되거나 심할 경우 전문가 상담을 받아보세요.
+  </p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/gh/leoleo0813/tistory-blog@main/blog.js"></script>

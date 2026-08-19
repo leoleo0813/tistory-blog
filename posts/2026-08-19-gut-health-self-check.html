@@ -1,0 +1,77 @@
+<!-- ================================================================
+     티스토리 포스트 본문 — 이 블록 전체를 티스토리 글쓰기 화면의
+     HTML 편집 모드에 붙여넣으세요. blog.js는 GitHub(jsDelivr)에서
+     자동으로 불러옵니다.
+================================================================ -->
+<div style="max-width:720px;margin:0 auto;font-size:16px;line-height:1.8;color:#2C2C2A;">
+
+  <h2>장 건강 자가진단 — 내 장은 건강할까?</h2>
+  <p>장 건강(마이크로바이옴)은 소화뿐 아니라 면역, 피부, 피로감까지 연결된다는 연구가 늘며 생활·건강 분야의 주요 관심사로 떠올랐습니다. 10개 문항으로 나의 장 건강 상태와 식습관을 점검해보세요.</p>
+
+  <style>
+    #gh-quizWrap, #gh-resultWrap { font-family: inherit; margin: 24px 0; }
+    .gh-card { background:#FAFAF8; border:1px solid #E7E5DE; border-radius:16px; padding:28px 24px; }
+    .gh-prog-wrap { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+    .gh-prog-track { flex:1; height:8px; background:#E7E5DE; border-radius:999px; overflow:hidden; }
+    #gh-progFill { height:100%; width:0%; background:#1D9E75; transition:width .3s ease; }
+    #gh-progText { font-size:13px; color:#8A8578; white-space:nowrap; }
+    #gh-qNum { font-size:13px; color:#1D9E75; font-weight:700; margin-bottom:6px; }
+    #gh-qText { font-size:18px; font-weight:700; margin:0 0 20px; }
+    #gh-optArea { display:flex; flex-direction:column; gap:10px; }
+    .gh-opt-btn { display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:14px 16px; border:1px solid #E7E5DE; background:#fff; border-radius:12px; cursor:pointer; font-size:15px; color:#2C2C2A; }
+    .gh-opt-btn.selected { border-color:#1D9E75; background:color-mix(in srgb, #1D9E75 10%, white); font-weight:700; }
+    .gh-opt-dot { width:26px; height:26px; flex:none; border-radius:50%; background:#E7E5DE; color:#5C5850; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
+    .gh-opt-btn.selected .gh-opt-dot { background:#1D9E75; color:#fff; }
+    .gh-nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:22px; gap:10px; }
+    #gh-prevBtn, #gh-nextBtn { padding:10px 20px; border-radius:10px; border:1px solid #E7E5DE; background:#fff; cursor:pointer; font-size:14px; font-weight:700; }
+    #gh-nextBtn { background:#1D9E75; color:#fff; border-color:#1D9E75; margin-left:auto; }
+    #gh-prevBtn:disabled { opacity:.4; cursor:not-allowed; }
+    #gh-hint { font-size:13px; color:#8A8578; margin-top:10px; text-align:center; }
+    #gh-resultWrap { text-align:center; }
+    #gh-resEmoji { font-size:52px; }
+    #gh-resLevel { font-size:15px; font-weight:700; margin-top:6px; }
+    #gh-resTitle { font-size:20px; font-weight:800; margin:8px 0 4px; }
+    #gh-resScore { font-size:36px; font-weight:800; margin:6px 0; }
+    .gh-res-bar-track { height:10px; background:#E7E5DE; border-radius:999px; overflow:hidden; margin:14px 0 18px; }
+    #gh-resBar { height:100%; width:0%; transition:width .8s ease; }
+    #gh-resDesc { font-size:15px; color:#4A463E; text-align:left; background:#FAFAF8; border-radius:12px; padding:16px 18px; margin-bottom:16px; }
+    .gh-tips-title { font-weight:700; margin-bottom:10px; text-align:left; }
+    #gh-resTips { text-align:left; display:flex; flex-direction:column; gap:8px; }
+    .gh-rtip { display:flex; align-items:flex-start; gap:8px; font-size:14.5px; }
+    .gh-rtip-dot { width:6px; height:6px; border-radius:50%; margin-top:8px; flex:none; }
+    .gh-retry-btn { margin-top:20px; padding:10px 22px; border-radius:10px; border:1px solid #1D9E75; background:#fff; color:#1D9E75; font-weight:700; cursor:pointer; }
+  </style>
+
+  <div id="gh-quizWrap" class="gh-card">
+    <div class="gh-prog-wrap">
+      <div class="gh-prog-track"><div id="gh-progFill"></div></div>
+      <span id="gh-progText">0 / 10</span>
+    </div>
+    <div id="gh-qNum">문항 1 / 10</div>
+    <div id="gh-qText"></div>
+    <div id="gh-optArea"></div>
+    <div class="gh-nav-row">
+      <button id="gh-prevBtn">← 이전</button>
+      <button id="gh-nextBtn">다음 →</button>
+    </div>
+    <div id="gh-hint">솔직하게 선택할수록 정확해요</div>
+  </div>
+
+  <div id="gh-resultWrap" class="gh-card" style="display:none;">
+    <div id="gh-resEmoji"></div>
+    <div id="gh-resLevel"></div>
+    <div id="gh-resTitle"></div>
+    <div id="gh-resScore"></div>
+    <div class="gh-res-bar-track"><div id="gh-resBar"></div></div>
+    <div id="gh-resDesc"></div>
+    <div id="gh-resTips"></div>
+    <button class="gh-retry-btn">다시 진단하기</button>
+  </div>
+
+  <p style="font-size:13px;color:#8A8578;margin-top:20px;">
+    ※ 본 자가진단은 참고용 콘텐츠이며 의학적 진단을 대체하지 않습니다. 증상이 지속되거나 심할 경우 전문가 상담을 받아보세요.
+  </p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/gh/leoleo0813/tistory-blog@main/blog.js"></script>

@@ -1,0 +1,77 @@
+<!-- ================================================================
+     티스토리 포스트 본문 — 이 블록 전체를 티스토리 글쓰기 화면의
+     HTML 편집 모드에 붙여넣으세요. blog.js는 GitHub(jsDelivr)에서
+     자동으로 불러옵니다.
+================================================================ -->
+<div style="max-width:720px;margin:0 auto;font-size:16px;line-height:1.8;color:#2C2C2A;">
+
+  <h2>스트레스 지수 자가진단 — 지금 내 마음 상태는?</h2>
+  <p>멘탈 헬스 케어가 2026년 웰니스 트렌드의 핵심으로 꼽히고 있습니다. 만성 스트레스는 방치하면 신체 질환으로 이어질 수 있는 만큼, 조기에 내 상태를 파악하는 것이 중요합니다. 10개 문항으로 현재 스트레스 수준을 확인해보세요.</p>
+
+  <style>
+    #si-quizWrap, #si-resultWrap { font-family: inherit; margin: 24px 0; }
+    .si-card { background:#FAFAF8; border:1px solid #E7E5DE; border-radius:16px; padding:28px 24px; }
+    .si-prog-wrap { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+    .si-prog-track { flex:1; height:8px; background:#E7E5DE; border-radius:999px; overflow:hidden; }
+    #si-progFill { height:100%; width:0%; background:#B5502E; transition:width .3s ease; }
+    #si-progText { font-size:13px; color:#8A8578; white-space:nowrap; }
+    #si-qNum { font-size:13px; color:#B5502E; font-weight:700; margin-bottom:6px; }
+    #si-qText { font-size:18px; font-weight:700; margin:0 0 20px; }
+    #si-optArea { display:flex; flex-direction:column; gap:10px; }
+    .si-opt-btn { display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:14px 16px; border:1px solid #E7E5DE; background:#fff; border-radius:12px; cursor:pointer; font-size:15px; color:#2C2C2A; }
+    .si-opt-btn.selected { border-color:#B5502E; background:color-mix(in srgb, #B5502E 10%, white); font-weight:700; }
+    .si-opt-dot { width:26px; height:26px; flex:none; border-radius:50%; background:#E7E5DE; color:#5C5850; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
+    .si-opt-btn.selected .si-opt-dot { background:#B5502E; color:#fff; }
+    .si-nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:22px; gap:10px; }
+    #si-prevBtn, #si-nextBtn { padding:10px 20px; border-radius:10px; border:1px solid #E7E5DE; background:#fff; cursor:pointer; font-size:14px; font-weight:700; }
+    #si-nextBtn { background:#B5502E; color:#fff; border-color:#B5502E; margin-left:auto; }
+    #si-prevBtn:disabled { opacity:.4; cursor:not-allowed; }
+    #si-hint { font-size:13px; color:#8A8578; margin-top:10px; text-align:center; }
+    #si-resultWrap { text-align:center; }
+    #si-resEmoji { font-size:52px; }
+    #si-resLevel { font-size:15px; font-weight:700; margin-top:6px; }
+    #si-resTitle { font-size:20px; font-weight:800; margin:8px 0 4px; }
+    #si-resScore { font-size:36px; font-weight:800; margin:6px 0; }
+    .si-res-bar-track { height:10px; background:#E7E5DE; border-radius:999px; overflow:hidden; margin:14px 0 18px; }
+    #si-resBar { height:100%; width:0%; transition:width .8s ease; }
+    #si-resDesc { font-size:15px; color:#4A463E; text-align:left; background:#FAFAF8; border-radius:12px; padding:16px 18px; margin-bottom:16px; }
+    .si-tips-title { font-weight:700; margin-bottom:10px; text-align:left; }
+    #si-resTips { text-align:left; display:flex; flex-direction:column; gap:8px; }
+    .si-rtip { display:flex; align-items:flex-start; gap:8px; font-size:14.5px; }
+    .si-rtip-dot { width:6px; height:6px; border-radius:50%; margin-top:8px; flex:none; }
+    .si-retry-btn { margin-top:20px; padding:10px 22px; border-radius:10px; border:1px solid #B5502E; background:#fff; color:#B5502E; font-weight:700; cursor:pointer; }
+  </style>
+
+  <div id="si-quizWrap" class="si-card">
+    <div class="si-prog-wrap">
+      <div class="si-prog-track"><div id="si-progFill"></div></div>
+      <span id="si-progText">0 / 10</span>
+    </div>
+    <div id="si-qNum">문항 1 / 10</div>
+    <div id="si-qText"></div>
+    <div id="si-optArea"></div>
+    <div class="si-nav-row">
+      <button id="si-prevBtn">← 이전</button>
+      <button id="si-nextBtn">다음 →</button>
+    </div>
+    <div id="si-hint">솔직하게 선택할수록 정확해요</div>
+  </div>
+
+  <div id="si-resultWrap" class="si-card" style="display:none;">
+    <div id="si-resEmoji"></div>
+    <div id="si-resLevel"></div>
+    <div id="si-resTitle"></div>
+    <div id="si-resScore"></div>
+    <div class="si-res-bar-track"><div id="si-resBar"></div></div>
+    <div id="si-resDesc"></div>
+    <div id="si-resTips"></div>
+    <button class="si-retry-btn">다시 진단하기</button>
+  </div>
+
+  <p style="font-size:13px;color:#8A8578;margin-top:20px;">
+    ※ 본 자가진단은 참고용 콘텐츠이며 의학적 진단을 대체하지 않습니다. 증상이 지속되거나 심할 경우 전문가 상담을 받아보세요.
+  </p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/gh/leoleo0813/tistory-blog@main/blog.js"></script>
