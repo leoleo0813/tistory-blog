@@ -1,0 +1,28 @@
+name: Notify Kakao
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: '카카오톡으로 보낼 메시지 본문'
+        required: true
+        type: string
+      link_url:
+        description: '메시지의 "자세히 보기" 버튼이 이동할 URL (선택)'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: python scripts/kakao_notify.py "${{ inputs.message }}" "${{ inputs.link_url }}"
+        env:
+          KAKAO_REST_API_KEY: ${{ secrets.KAKAO_REST_API_KEY }}
+          KAKAO_REFRESH_TOKEN: ${{ secrets.KAKAO_REFRESH_TOKEN }}
